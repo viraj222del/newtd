@@ -1,9 +1,15 @@
 # Code Quality & Security Analyzer
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Live](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+A powerful tool for analyzing code quality, identifying security vulnerabilities, and tracking technical debt in software repositories.
 
+## 📌 Live Demo
+
+🔗 [Live Demo](https://your-demo-link.vercel.app)  
+🎥 [Video Demo](https://youtube.com/your-demo-video)
+
+## 🚀 Introduction
 Code Quality & Security Analyzer is a developer-friendly tool that helps teams maintain high code quality by providing comprehensive analysis and actionable insights. It combines static code analysis with AI-powered recommendations to help you write better, more secure code.
 
 ## 📑 Table of Contents
@@ -134,3 +140,4 @@ Our tool leverages Google's Gemini AI to provide:
 
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
