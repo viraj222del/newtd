@@ -132,13 +132,12 @@ Our tool leverages Google's Gemini AI to provide:
 
 - [Visha Yadav](https://github.com/vishayadav) 
 - [Viraj Ravani](https://github.com/v3ravani)
-- 
-
 
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
 
 
