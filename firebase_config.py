@@ -1,46 +1,43 @@
-import os
-import firebase_admin
-from firebase_admin import credentials, db
-from firebase_admin.exceptions import FirebaseError
+import requests
+import json
 
-# Initialize Firebase Admin SDK
-def initialize_firebase():
-    try:
-        # Using application default credentials
-        # Make sure to set GOOGLE_APPLICATION_CREDENTIALS environment variable
-        # to the path of your service account key JSON file
-        if not firebase_admin._apps:
-            cred = credentials.ApplicationDefault()
-            firebase_admin.initialize_app(cred, {
-                'databaseURL': 'https://chatter-insights-tdrbu-default-rtdb.firebaseio.com/'
-            })
-        return True
-    except Exception as e:
-        print(f"Error initializing Firebase: {e}")
-        return False
+# Firebase Realtime Database URL (from your project)
+FIREBASE_DB_URL = "https://chatter-insights-tdrbu-default-rtdb.firebaseio.com"
 
 def get_gemini_api_key():
     """
-    Fetches the Gemini API key from Firebase Realtime Database
+    Fetches the Gemini API key directly from Firebase Realtime Database
     """
     try:
-        if not firebase_admin._apps:
-            if not initialize_firebase():
-                return None
-                
-        # Get a database reference to the API key
-        ref = db.reference('GeminiGEMINI_API_KEY')
-        api_key = ref.get()
+        # Construct the URL to fetch the API key
+        url = f"{FIREBASE_DB_URL}/GeminiGEMINI_API_KEY.json"
         
-        if not api_key:
-            print("API key not found in Firebase database")
+        # Make the request to Firebase
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        
+        # Parse the response
+        api_key = response.text.strip('"')  # Remove quotes from the response
+        
+        if not api_key or api_key == 'null':
+            print("Error: API key not found in the database")
             return None
             
+        print("Successfully retrieved API key from Firebase")
         return api_key
         
-    except FirebaseError as e:
-        print(f"Firebase error: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching API key from Firebase: {e}")
         return None
     except Exception as e:
-        print(f"Error fetching API key: {e}")
+        print(f"Unexpected error: {e}")
         return None
+
+# For testing
+if __name__ == "__main__":
+    print("Testing Firebase connection...")
+    api_key = get_gemini_api_key()
+    if api_key:
+        print("Success! API key retrieved:", api_key[:5] + "..." + api_key[-5:] if len(api_key) > 10 else api_key)
+    else:
+        print("Failed to retrieve API key")

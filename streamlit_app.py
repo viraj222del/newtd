@@ -1,7 +1,6 @@
 import streamlit as st
 import traceback
 import pandas as pd
-
 from typing import Dict, Any, List, Tuple
 
 from git_debt_analyzer import run_analysis_pipeline
@@ -12,6 +11,7 @@ from gemini_integration import (
     generate_contributor_analysis_summary,
     generate_security_analysis_summary
 )
+from pdf_utils import generate_pdf_report
 
 
 def build_tables_from_data(all_file_data: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
