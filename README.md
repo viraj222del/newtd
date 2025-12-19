@@ -6,7 +6,7 @@ Team: BlackBox
 
 ## 📌 Live Demo
 
-🔗 [Live Demo](https://your-demo-link.vercel.app)  
+🔗 [Live Demo](https://technicaldebtanalyzer.streamlit.app)  
 🎥 [Video Demo](https://youtube.com/your-demo-video)
 
 ## 🚀 Introduction
@@ -23,17 +23,16 @@ Code Quality & Security Analyzer is a developer-friendly tool that helps teams m
 - [Contributors](#-contributors)
 - [License](#-license)
 
-## ❓ Problem Statement
-
+## ❓ Problem: Hidden cost of VibeCoding
 - **Technical Debt Accumulation**: Difficulty in identifying and tracking technical debt across large codebases
+- **Code Quality Crash**: Prioritizing speed over structure leads to Technical Debt, creating code that is complex, hard to maintain, and extremely slow to update.
 - **Security Vulnerabilities**: Hard-to-spot security issues that could lead to breaches
-- **Inconsistent Code Quality**: Lack of standardized metrics to measure and maintain code quality
+- **Scalability Blockers:** Code written without clear architecture often means the Minimum Viable Product (MVP) cannot handle growth, leading to performance failures when scaling.
 
-## 💡 Our Solution
-
-- **Comprehensive Analysis**: Combines multiple code quality metrics into a single, easy-to-understand report
-- **AI-Powered Insights**: Uses Gemini AI to provide contextual analysis and recommendations
-- **Developer-Friendly**: Simple setup and intuitive interface for quick adoption
+## 💡 Our Solution - AI Powered Technical Debt Analyzer
+- **AI-Powered Code Analysis:** Uses AI to scan the entire repository and understand real code risks.
+- **Clear Risk Scores:** Provides simple technical debt and security risk scores for quick decisions.
+- **Actionable Insights:** Highlights the main risk factor per file to guide focused improvements.
 
 ## ✨ Key Features
 
@@ -138,7 +137,7 @@ Our tool leverages Google's Gemini AI to provide:
 
 ## 📄 License
 
-
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
 
