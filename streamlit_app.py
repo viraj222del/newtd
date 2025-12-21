@@ -798,7 +798,7 @@ def main():
         st.markdown("---")
         st.markdown("""
         <div style="text-align: center; padding: 2rem; color: #666; font-style: italic; margin-top: 3rem; border-top: 2px solid #e0e0e0;">
-            <p style="font-size: 1.1em; margin: 0;">Developed with ❤️ by <strong>Viraj & Visha</strong></p>
+            <p style="font-size: 1.1em; margin: 0;">Developed by <strong>Viraj & Visha</strong></p>
         </div>
         """, unsafe_allow_html=True)
 
