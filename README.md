@@ -4,15 +4,15 @@
 
 Team: BlackBox
 
-## 📌 Live Demo
+##  Live Demo
 
 🔗 [Live Demo](https://technicaldebtanalyzer.streamlit.app)  
 🎥 [Video Demo](https://youtu.be/j8wcMvob1IQ?si=2lwcagYU73zMSOt6)
 
-## 🚀 Introduction
+##  Introduction
 Technical Debt Analyzer is a developer-friendly tool that helps teams maintain high code quality by providing comprehensive analysis and actionable insights. It combines static code analysis with AI-powered recommendations to help you write better, more secure code.
 
-## 📑 Table of Contents
+##  Table of Contents
 
 - [Problem Statement](#-problem-statement)
 - [Our Solution](#-our-solution)
@@ -23,18 +23,18 @@ Technical Debt Analyzer is a developer-friendly tool that helps teams maintain h
 - [Contributors](#-contributors)
 - [License](#-license)
 
-## ❓ Problem: Hidden cost of VibeCoding
+##  Problem: Hidden cost of VibeCoding
 - **Technical Debt**: Hasty code makes the software fragile and expensive to fix, slowing down all future work.
 - **Security Risks:** Rushed coding creates serious flaws that leave the software vulnerable to attacks.
 - **Unable to Scale:** The weak foundation collapses under heavy user load, preventing real growth.
 - **Low Developer Productivity:** Messy code increases debugging time and reduces team efficiency.
 
-## 💡 Our Solution - AI Powered Technical Debt Analyzer
+##  Our Solution - AI Powered Technical Debt Analyzer
 - **AI-Powered Code Analysis:** Uses AI to scan the entire repository and understand real code risks.
 - **Clear Risk Scores:** Provides simple technical debt and security risk scores for quick decisions.
 - **Actionable Insights:** Highlights the main risk factor per file to guide focused improvements.
 - **Scalability Readiness Check:** Identifies architectural and performance risks that can block future growth.
-## ✨ Key Features
+##  Key Features
 
 ### Code Metrics
 - **Lines of Code (LOC)**: Total lines of executable logic in the repository, excluding comments and blank lines.
@@ -80,7 +80,7 @@ Technical Debt Analyzer is a developer-friendly tool that helps teams maintain h
 - **Technical Debt Assessment**: Estimates effort required for maintenance
 - **Refactoring Recommendations**: Specific suggestions for code improvement
 
-## 🤖 AI-Powered Analysis
+##  AI-Powered Analysis
 Our tool leverages Google's Gemini AI to provide:
 - Contextual code analysis
 - Smart recommendations for improvements
@@ -88,7 +88,7 @@ Our tool leverages Google's Gemini AI to provide:
 - Automated code review comments
 - Predictive maintenance insights
 
-## 🛠 Tech Stack
+##  Tech Stack
 - **Frontend**: Streamlit, HTML, CSS, JavaScript
 - **Backend**: Python, JavaScript
 - **AI/ML**: Google Gemini API (Gemini 2.5 Flash, Gemini 3 Flash)
@@ -96,7 +96,7 @@ Our tool leverages Google's Gemini AI to provide:
 - **Version Control**: Git
 - **Deployment**: Streamlit Cloud
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -128,15 +128,16 @@ Our tool leverages Google's Gemini AI to provide:
    streamlit run streamlit_app.py
    ```
 
-## 👥 Contributors
+##  Contributors
 
 - [Visha Yadav](https://github.com/vishayadav) 
 - [Viraj Ravani](https://github.com/v3ravani)
 
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
 
 
