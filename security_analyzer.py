@@ -163,7 +163,7 @@ def scan_for_secrets(target_path: str) -> List[Dict[str, Any]]:
         
         for file in files:
             # Check common file types for secrets
-            if not file.endswith(('.py', '.json', '.yaml', '.yml', '.env', '.sh', '.conf', '.txt', '.html', '.js', '.ts', '.java', '.go', '.c', '.h')):
+            if not file.endswith(('.py', '.json', '.yaml', '.yml', '.env', '.sh', '.bash', '.conf', '.txt', '.html', '.js', '.ts', '.java', '.go', '.c', '.h', '.dart', '.rs', '.cs', '.php', '.kt')):
                 continue
 
             full_path = os.path.join(root, file)

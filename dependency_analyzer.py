@@ -11,6 +11,14 @@ DEPENDENCY_PATTERNS = {
     '.c': r'#include\s+["<]([\w\/\.]+)[">]',
     '.cpp': r'#include\s+["<]([\w\/\.]+)[">]',
     '.html': r'(?:<script\s+src|href)\s*=\s*["\']([^"\']+)["\']', # Basic HTML resource detection
+    '.dart': r'import\s+[\'"]?([^\'"]+)[\'"]?', # Dart imports: import 'package:...' or import 'path/to/file.dart'
+    '.rs': r'(?:use|mod|extern\s+crate)\s+([\w:\.]+)', # Rust: use crate::name, mod name, extern crate name
+    '.go': r'import\s+(?:[\w]+\s+)?["\']([^"\']+)["\']', # Go: import "package" or import alias "package"
+    '.cs': r'using\s+([\w\.]+);', # C#: using Namespace;
+    '.php': r'(?:(?:require|require_once|include|include_once)\s+[\'"]?([^\'"\s;]+)[\'"]?|use\s+([\\\w]+))', # PHP: require/include 'file', use Namespace
+    '.sh': r'(?:\.|source)\s+([^\s#]+)', # Shell: . file.sh or source file.sh
+    '.bash': r'(?:\.|source)\s+([^\s#]+)', # Bash: . file.sh or source file.sh
+    '.kt': r'import\s+([\w\.]+)', # Kotlin: import package.Class
 }
 
 def analyze_dependencies(repo_path: str, all_file_data: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
@@ -34,7 +42,15 @@ def analyze_dependencies(repo_path: str, all_file_data: Dict[str, Dict[str, Any]
         except Exception:
             continue
             
-        found_dependencies = set(re.findall(pattern, content))
+        found_dependencies_raw = re.findall(pattern, content)
+        # Handle cases where pattern has multiple capture groups (returns tuples)
+        found_dependencies = set()
+        for dep in found_dependencies_raw:
+            if isinstance(dep, tuple):
+                # Flatten tuple by taking non-empty values
+                found_dependencies.update([d for d in dep if d])
+            else:
+                found_dependencies.add(dep)
 
         for dep in found_dependencies:
             # Simple heuristic: look for paths that match

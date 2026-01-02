@@ -14,6 +14,7 @@ from dependency_analyzer import analyze_dependencies
 from metrics_calculator import compute_advanced_metrics
 from report_generator import find_main_contributing_factor, generate_cli_report 
 from contributor_analyzer import analyze_contributor_efficiency
+from codebase_blueprint import analyze_codebase_blueprint
 
 
 # Simplified onerror handler for cross-platform cleanup resilience
@@ -67,7 +68,12 @@ def run_analysis_pipeline(repo_url: str) -> Dict[str, Any]:
         contributor_data = analyze_contributor_efficiency(all_file_data)
         all_file_data['_contributor_stats'] = contributor_data
         
-        # --- 7. Prepare Data for Reporting ---
+        # --- 7. Codebase Blueprint Analysis ---
+        print("📐 Generating codebase blueprint...")
+        blueprint_data = analyze_codebase_blueprint(temp_dir, all_file_data)
+        all_file_data.update(blueprint_data)
+        
+        # --- 8. Prepare Data for Reporting ---
         # Store the temporary path for filesystem scans
         all_file_data['_local_repo_path'] = temp_dir 
         

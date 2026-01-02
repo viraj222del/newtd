@@ -192,7 +192,9 @@ def generate_cli_report(repo_url: str, all_file_data: Dict[str, Dict[str, Any]])
     repo_stats = all_file_data.pop('_repo_stats', {})
     contributor_data = all_file_data.pop('_contributor_stats', {})
     repo_metadata = all_file_data.pop('_repo_metadata', {}) 
-    temp_local_path = all_file_data.pop('_local_repo_path', repo_url) 
+    temp_local_path = all_file_data.pop('_local_repo_path', repo_url)
+    blueprint_data = all_file_data.pop('_blueprint', {})
+    blueprint_stats = all_file_data.pop('_blueprint_stats', {}) 
 
     repo_score = repo_stats.get('overall_technical_debt', 0)
     max_values = repo_stats.get('max_values', {})
@@ -438,6 +440,130 @@ def generate_cli_report(repo_url: str, all_file_data: Dict[str, Dict[str, Any]])
 
     except Exception as e:
         print(f"\n❌ Error printing Security Hotspot Table (9): {e}", file=sys.stderr)
+
+
+    # ------------------------------------------------------------------
+    # --- 10. Table: Codebase Blueprint ---
+    # ------------------------------------------------------------------
+    try:
+        
+        if blueprint_data:
+            # 10a. Classes Summary
+            classes_summary = []
+            for file_path, file_blueprint in blueprint_data.items():
+                for cls in file_blueprint.get('classes', []):
+                    methods_count = len(cls.get('methods', []))
+                    members_count = len(cls.get('members', []))
+                    inheritance_str = ', '.join(cls.get('inheritance', [])) if cls.get('inheritance') else 'None'
+                    
+                    classes_summary.append([
+                        cls['name'],
+                        file_path,
+                        str(methods_count),
+                        str(members_count),
+                        inheritance_str,
+                        str(cls.get('loc', 0))
+                    ])
+            
+            if classes_summary:
+                classes_summary.sort(key=lambda x: int(x[5]), reverse=True)  # Sort by LOC
+                print(f"\n> Description: All classes found in the codebase with their methods, members, inheritance, and size.")
+                print_table(f"10a. Classes Blueprint ({len(classes_summary)} Classes)",
+                           ["Class Name", "File", "Methods", "Members", "Inheritance", "LOC"],
+                           classes_summary[:50])  # Limit to top 50
+            
+            # 10b. Functions Summary
+            functions_summary = []
+            for file_path, file_blueprint in blueprint_data.items():
+                for func in file_blueprint.get('functions', []):
+                    params_count = len(func.get('parameters', []))
+                    async_str = 'Yes' if func.get('async', False) else 'No'
+                    
+                    functions_summary.append([
+                        func['name'],
+                        file_path,
+                        str(params_count),
+                        async_str,
+                        str(func.get('line', 0))
+                    ])
+            
+            if functions_summary:
+                functions_summary.sort(key=lambda x: x[0])  # Sort by name
+                print(f"\n> Description: Top-level functions found in the codebase.")
+                print_table(f"10b. Functions Blueprint ({len(functions_summary)} Functions)",
+                           ["Function Name", "File", "Parameters", "Async", "Line"],
+                           functions_summary[:50])  # Limit to top 50
+            
+            # 10c. Most Reused Classes
+            most_reused = blueprint_stats.get('most_reused_classes', [])
+            if most_reused:
+                reused_table = [[name, str(count)] for name, count in most_reused]
+                print(f"\n> Description: Classes that are imported/used in multiple files (indicating high reusability).")
+                print_table(f"10c. Most Reused Classes ({len(reused_table)} Classes)",
+                           ["Class Name", "Usage Count"],
+                           reused_table)
+            
+            # 10d. Loops Summary
+            loops_summary = []
+            loop_types_count = {}
+            for file_path, file_blueprint in blueprint_data.items():
+                for loop in file_blueprint.get('loops', []):
+                    loop_type = loop.get('type', 'unknown')
+                    loop_types_count[loop_type] = loop_types_count.get(loop_type, 0) + 1
+                    loops_summary.append([
+                        file_path,
+                        loop_type,
+                        str(loop.get('line', 0))
+                    ])
+            
+            if loops_summary:
+                loops_summary.sort(key=lambda x: (x[0], int(x[2])))  # Sort by file, then line
+                print(f"\n> Description: All loops found in the codebase (for, while, etc.).")
+                print_table(f"10d. Loops Blueprint ({len(loops_summary)} Loops)",
+                           ["File", "Type", "Line"],
+                           loops_summary[:100])  # Limit to top 100
+            
+            # 10e. Blueprint Statistics
+            stats_table = [
+                ["Total Classes", str(blueprint_stats.get('total_classes', 0))],
+                ["Total Functions", str(blueprint_stats.get('total_functions', 0))],
+                ["Total Variables", str(blueprint_stats.get('total_variables', 0))],
+                ["Total Loops", str(blueprint_stats.get('total_loops', 0))],
+                ["Files Analyzed", str(blueprint_stats.get('total_files_analyzed', 0))],
+            ]
+            
+            if loop_types_count:
+                for loop_type, count in sorted(loop_types_count.items()):
+                    stats_table.append([f"Loops ({loop_type})", str(count)])
+            
+            print(f"\n> Description: Overall codebase structure statistics.")
+            print_table(f"10e. Blueprint Statistics",
+                       ["Metric", "Count"],
+                       stats_table)
+            
+            # 10f. Variable Usage in Functions
+            var_usage_summary = []
+            for file_path, file_blueprint in blueprint_data.items():
+                func_var_usage = file_blueprint.get('function_variable_usage', {})
+                for func_name, var_usages in func_var_usage.items():
+                    for usage in var_usages:
+                        var_usage_summary.append([
+                            func_name,
+                            file_path,
+                            usage.get('var', ''),
+                            usage.get('type', 'local'),
+                            str(usage.get('line', 0))
+                        ])
+            
+            if var_usage_summary:
+                var_usage_summary.sort(key=lambda x: (x[0], int(x[4])))  # Sort by function, then line
+                print(f"\n> Description: All variables and data members used in functions with line numbers where they're referenced.")
+                print_table(f"10f. Variable Usage in Functions ({len(var_usage_summary)} Variable References)",
+                           ["Function Name", "File", "Variable", "Type (local/member/global)", "Line"],
+                           var_usage_summary[:200])  # Limit to top 200
+        
+    except Exception as e:
+        print(f"\n❌ Error printing Codebase Blueprint (10): {e}", file=sys.stderr)
 
 
     # --- FINAL FOOTER ---

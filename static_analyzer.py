@@ -4,7 +4,7 @@ import ast
 from typing import Dict, Any, List
 
 # List of file extensions to analyze for complexity and LOC
-ANALYZE_EXTENSIONS = ('.py', '.js', '.ts', '.java', '.c', '.cpp', '.html', '.css')
+ANALYZE_EXTENSIONS = ('.py', '.js', '.ts', '.java', '.c', '.cpp', '.html', '.css', '.dart', '.rs', '.go', '.cs', '.php', '.sh', '.bash', '.kt')
 
 COMMENT_PATTERNS = {
     '.py': re.compile(r'^\s*#'),
@@ -14,6 +14,14 @@ COMMENT_PATTERNS = {
     '.c': re.compile(r'^\s*//'),
     '.cpp': re.compile(r'^\s*//'),
     '.h': re.compile(r'^\s*//'),
+    '.dart': re.compile(r'^\s*//'),
+    '.rs': re.compile(r'^\s*//'),  # Rust
+    '.go': re.compile(r'^\s*//'),  # Go
+    '.cs': re.compile(r'^\s*//'),  # C#
+    '.php': re.compile(r'^\s*(?:#|//)'),  # PHP supports both # and //
+    '.sh': re.compile(r'^\s*#'),  # Shell scripts
+    '.bash': re.compile(r'^\s*#'),  # Bash scripts
+    '.kt': re.compile(r'^\s*//'),  # Kotlin
     # Note: Block comments handled line-by-line below for better accuracy
 }
 

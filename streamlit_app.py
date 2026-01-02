@@ -26,6 +26,8 @@ def build_tables_from_data(all_file_data: Dict[str, Dict[str, Any]]) -> Dict[str
     repo_stats = all_file_data.get("_repo_stats", {})
     contributor_data = all_file_data.get("_contributor_stats", {})
     local_repo_path = all_file_data.get("_local_repo_path", "")
+    blueprint_data = all_file_data.get("_blueprint", {})
+    blueprint_stats = all_file_data.get("_blueprint_stats", {})
 
     files = [
         (path, data)
@@ -245,6 +247,81 @@ def build_tables_from_data(all_file_data: Dict[str, Dict[str, Any]]) -> Dict[str
         })
     knowledge_concentration.sort(key=lambda x: x["concentration_risk"], reverse=True)
     tables["knowledge_concentration"] = knowledge_concentration
+
+    # 10. Codebase Blueprint
+    if blueprint_data:
+        # 10a. Classes
+        classes_list = []
+        for file_path, file_blueprint in blueprint_data.items():
+            for cls in file_blueprint.get("classes", []):
+                inheritance_str = ", ".join(cls.get("inheritance", [])) if cls.get("inheritance") else "None"
+                classes_list.append({
+                    "class_name": cls["name"],
+                    "file_path": file_path,
+                    "methods_count": len(cls.get("methods", [])),
+                    "members_count": len(cls.get("members", [])),
+                    "inheritance": inheritance_str,
+                    "loc": cls.get("loc", 0),
+                    "line": cls.get("line", 0),
+                    "methods": ", ".join(cls.get("methods", []))[:100]  # Truncate for display
+                })
+        classes_list.sort(key=lambda x: x["loc"], reverse=True)
+        tables["blueprint_classes"] = classes_list
+
+        # 10b. Functions
+        functions_list = []
+        for file_path, file_blueprint in blueprint_data.items():
+            for func in file_blueprint.get("functions", []):
+                functions_list.append({
+                    "function_name": func["name"],
+                    "file_path": file_path,
+                    "parameters_count": len(func.get("parameters", [])),
+                    "async": "Yes" if func.get("async", False) else "No",
+                    "line": func.get("line", 0),
+                    "parameters": ", ".join(func.get("parameters", []))[:100]  # Truncate for display
+                })
+        functions_list.sort(key=lambda x: x["function_name"])
+        tables["blueprint_functions"] = functions_list
+
+        # 10c. Most Reused Classes
+        most_reused = blueprint_stats.get("most_reused_classes", [])
+        reused_list = [{"class_name": name, "usage_count": count} for name, count in most_reused]
+        tables["blueprint_reused_classes"] = reused_list
+
+        # 10d. Loops
+        loops_list = []
+        loop_types_count = {}
+        for file_path, file_blueprint in blueprint_data.items():
+            for loop in file_blueprint.get("loops", []):
+                loop_type = loop.get("type", "unknown")
+                loop_types_count[loop_type] = loop_types_count.get(loop_type, 0) + 1
+                loops_list.append({
+                    "file_path": file_path,
+                    "loop_type": loop_type,
+                    "line": loop.get("line", 0)
+                })
+        loops_list.sort(key=lambda x: (x["file_path"], x["line"]))
+        tables["blueprint_loops"] = loops_list
+        tables["blueprint_loop_types"] = loop_types_count
+
+        # 10e. Blueprint Statistics
+        tables["blueprint_stats"] = blueprint_stats
+        
+        # 10f. Variable Usage in Functions
+        var_usage_list = []
+        for file_path, file_blueprint in blueprint_data.items():
+            func_var_usage = file_blueprint.get("function_variable_usage", {})
+            for func_name, var_usages in func_var_usage.items():
+                for usage in var_usages:
+                    var_usage_list.append({
+                        "function_name": func_name,
+                        "file_path": file_path,
+                        "variable": usage.get("var", ""),
+                        "type": usage.get("type", "local"),
+                        "line": usage.get("line", 0)
+                    })
+        var_usage_list.sort(key=lambda x: (x["function_name"], x["line"]))
+        tables["blueprint_var_usage"] = var_usage_list
 
     return tables
 
@@ -496,6 +573,201 @@ def main():
                 df_maint = pd.DataFrame(maintainability).head(20)
                 st.caption("Top 20 least maintainable files (lowest index)")
                 st.bar_chart(df_maint.set_index("file_path")["maintainability_index"])
+
+            st.markdown("---")
+
+            # Codebase Blueprint Section
+            st.subheader("📐 Codebase Blueprint")
+            
+            # Blueprint Statistics
+            blueprint_stats = tables.get("blueprint_stats", {})
+            if blueprint_stats:
+                col_bp1, col_bp2, col_bp3, col_bp4, col_bp5 = st.columns(5)
+                col_bp1.metric("Total Classes", blueprint_stats.get("total_classes", 0))
+                col_bp2.metric("Total Functions", blueprint_stats.get("total_functions", 0))
+                col_bp3.metric("Total Variables", blueprint_stats.get("total_variables", 0))
+                col_bp4.metric("Total Loops", blueprint_stats.get("total_loops", 0))
+                col_bp5.metric("Files Analyzed", blueprint_stats.get("total_files_analyzed", 0))
+                
+                st.markdown("---")
+            
+            # Classes Blueprint
+            st.subheader("🏛️ Classes Blueprint")
+            classes_data = tables.get("blueprint_classes", [])
+            if classes_data:
+                # Allow filtering
+                col_filter1, col_filter2 = st.columns(2)
+                with col_filter1:
+                    min_methods = st.number_input("Min Methods", min_value=0, value=0, step=1)
+                with col_filter2:
+                    min_loc = st.number_input("Min LOC", min_value=0, value=0, step=1)
+                
+                filtered_classes = [
+                    cls for cls in classes_data 
+                    if cls["methods_count"] >= min_methods and cls["loc"] >= min_loc
+                ]
+                
+                st.dataframe(
+                    filtered_classes[:100],  # Limit to first 100
+                    use_container_width=True,
+                    column_config={
+                        "class_name": "Class Name",
+                        "file_path": "File",
+                        "methods_count": "Methods",
+                        "members_count": "Members",
+                        "inheritance": "Inheritance",
+                        "loc": "LOC",
+                        "line": "Line",
+                        "methods": "Methods List"
+                    }
+                )
+                
+                if filtered_classes:
+                    df_classes = pd.DataFrame(filtered_classes[:20])
+                    col_class1, col_class2 = st.columns(2)
+                    with col_class1:
+                        st.caption("Top 20 classes by LOC")
+                        st.bar_chart(df_classes.set_index("class_name")["loc"])
+                    with col_class2:
+                        st.caption("Top 20 classes by Methods Count")
+                        st.bar_chart(df_classes.set_index("class_name")["methods_count"])
+            else:
+                st.info("No class data available in blueprint.")
+
+            st.markdown("---")
+
+            # Functions Blueprint
+            st.subheader("⚙️ Functions Blueprint")
+            functions_data = tables.get("blueprint_functions", [])
+            if functions_data:
+                st.dataframe(
+                    functions_data[:100],  # Limit to first 100
+                    use_container_width=True,
+                    column_config={
+                        "function_name": "Function Name",
+                        "file_path": "File",
+                        "parameters_count": "Parameters",
+                        "async": "Async",
+                        "line": "Line",
+                        "parameters": "Parameters List"
+                    }
+                )
+                
+                if functions_data:
+                    df_funcs = pd.DataFrame(functions_data[:20])
+                    st.caption("Top 20 functions by parameters count")
+                    st.bar_chart(df_funcs.set_index("function_name")["parameters_count"])
+            else:
+                st.info("No function data available in blueprint.")
+
+            st.markdown("---")
+
+            # Most Reused Classes
+            st.subheader("🔄 Most Reused Classes")
+            reused_classes = tables.get("blueprint_reused_classes", [])
+            if reused_classes:
+                st.write("Classes that are imported/used across multiple files (indicating high reusability)")
+                st.dataframe(reused_classes, use_container_width=True)
+                
+                if reused_classes:
+                    df_reused = pd.DataFrame(reused_classes)
+                    st.caption("Class reusability (higher = more reused)")
+                    st.bar_chart(df_reused.set_index("class_name")["usage_count"])
+            else:
+                st.info("No class reuse data available.")
+
+            st.markdown("---")
+
+            # Loops Blueprint
+            st.subheader("🔁 Loops Blueprint")
+            loops_data = tables.get("blueprint_loops", [])
+            loop_types = tables.get("blueprint_loop_types", {})
+            
+            if loops_data:
+                # Show loop type distribution
+                if loop_types:
+                    st.write("**Loop Type Distribution:**")
+                    loop_types_df = pd.DataFrame(list(loop_types.items()), columns=["Loop Type", "Count"])
+                    col_loop1, col_loop2 = st.columns([1, 2])
+                    with col_loop1:
+                        st.dataframe(loop_types_df, use_container_width=True)
+                    with col_loop2:
+                        st.bar_chart(loop_types_df.set_index("Loop Type")["Count"])
+                
+                st.markdown("---")
+                st.write("**All Loops in Codebase:**")
+                st.dataframe(
+                    loops_data[:200],  # Limit to first 200
+                    use_container_width=True,
+                    column_config={
+                        "file_path": "File",
+                        "loop_type": "Type",
+                        "line": "Line"
+                    }
+                )
+            else:
+                st.info("No loop data available in blueprint.")
+
+            st.markdown("---")
+
+            # Variable Usage in Functions
+            st.subheader("📝 Variable Usage in Functions")
+            var_usage_data = tables.get("blueprint_var_usage", [])
+            
+            if var_usage_data:
+                # Filter options
+                col_var1, col_var2 = st.columns(2)
+                with col_var1:
+                    var_type_filter = st.selectbox(
+                        "Filter by Type",
+                        ["All", "local", "member", "global"],
+                        key="var_type_filter"
+                    )
+                with col_var2:
+                    search_var = st.text_input("Search Function/Variable", key="var_search")
+                
+                # Apply filters
+                filtered_var_usage = var_usage_data
+                if var_type_filter != "All":
+                    filtered_var_usage = [v for v in filtered_var_usage if v["type"] == var_type_filter]
+                if search_var:
+                    filtered_var_usage = [
+                        v for v in filtered_var_usage 
+                        if search_var.lower() in v["function_name"].lower() or search_var.lower() in v["variable"].lower()
+                    ]
+                
+                st.dataframe(
+                    filtered_var_usage[:500],  # Limit to first 500
+                    use_container_width=True,
+                    column_config={
+                        "function_name": "Function",
+                        "file_path": "File",
+                        "variable": "Variable",
+                        "type": st.column_config.SelectboxColumn(
+                            "Type",
+                            options=["local", "member", "global"]
+                        ),
+                        "line": "Line"
+                    }
+                )
+                
+                # Statistics
+                if filtered_var_usage:
+                    var_type_counts = {}
+                    for v in filtered_var_usage:
+                        var_type_counts[v["type"]] = var_type_counts.get(v["type"], 0) + 1
+                    
+                    col_stat1, col_stat2, col_stat3 = st.columns(3)
+                    col_stat1.metric("Total References", len(filtered_var_usage))
+                    col_stat2.metric("Unique Variables", len(set(v["variable"] for v in filtered_var_usage)))
+                    col_stat3.metric("Functions", len(set(v["function_name"] for v in filtered_var_usage)))
+                    
+                    if var_type_counts:
+                        st.caption("Variable Type Distribution")
+                        var_type_df = pd.DataFrame(list(var_type_counts.items()), columns=["Type", "Count"])
+                        st.bar_chart(var_type_df.set_index("Type")["Count"])
+            else:
+                st.info("No variable usage data available in blueprint (this feature is currently optimized for Python files).")
 
             st.markdown("---")
 

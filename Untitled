@@ -38,8 +38,8 @@ def main():
 
     all_file_data = {}
     
-    # Identify supported source files (.py, .js, .html, .css)
-    supported_extensions = ('.py', '.js', '.html', '.css')
+    # Identify supported source files
+    supported_extensions = ('.py', '.js', '.ts', '.java', '.c', '.cpp', '.html', '.css', '.dart', '.rs', '.go', '.cs', '.php', '.sh', '.bash', '.kt')
     source_files = []
     for root, _, files in os.walk(repo_path):
         for file in files:
@@ -47,7 +47,7 @@ def main():
                 source_files.append(os.path.join(root, file))
 
     if not source_files:
-        print("⚠️ No supported source files found (.py, .js, .html, .css). Exiting.")
+        print("⚠️ No supported source files found. Exiting.")
         shutil.rmtree(temp_dir)
         return
 
