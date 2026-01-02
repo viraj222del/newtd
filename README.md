@@ -4,7 +4,7 @@
 
 Team: BlackBox
 
-##  Live Demo
+##  Live Demo:
 
 🔗 [Live Demo](https://technicaldebtanalyzer.streamlit.app)  
 🎥 [Video Demo](https://youtu.be/j8wcMvob1IQ?si=2lwcagYU73zMSOt6)
@@ -137,6 +137,7 @@ Our tool leverages Google's Gemini AI to provide:
 ##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
 
 
