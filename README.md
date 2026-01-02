@@ -51,7 +51,7 @@ Technical Debt Analyzer is a developer-friendly tool that helps teams maintain h
 - **Comment to Code Ratio**: Calculates the balance of documentation relative to raw logic to ensure long-term readability.
 - **Code Duplication**: Identifies duplicated code blocks
 - **File Size Analysis**: Flags unusually large files
-- **Comment Density**: Measures code documentation levels
+- **Comment Density**: Measures code documentation levels.
 - **Function Length**: Identifies overly complex functions
 - **Maintainability Index**: A combined health score indicating how easily a file can be supported, modified, and evolved.
 - **Code Quality Index**: A composite 0–100 grade balancing structural integrity, documentation density, and historical stability.
@@ -137,6 +137,7 @@ Our tool leverages Google's Gemini AI to provide:
 ##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
 
 
